@@ -64,14 +64,14 @@ filetype plugin indent on     " required!
 " NOTE: comments after Bundle command are not allowed..
 "
 " tab navigation like firefox
-nnoremap tk :bprevious<CR>
-nnoremap tj   :bnext<CR>
+nnoremap Tk :bprevious<CR>
+nnoremap Tj   :bnext<CR>
 map <Leader>mbe :MBEOpen<cr>
 map <Leader>mbc :MBEClose<cr>
 map <Leader>mbt :MBEToggle<cr>
 nnoremap <C-t>     :tabnew<CR>:NERDTree<CR>
-nnoremap Tk <Esc>:tabprevious<CR>
-nnoremap Tj   <Esc>:tabnext<CR>
+nnoremap tk <Esc>:tabprevious<CR>
+nnoremap tj   <Esc>:tabnext<CR>
 inoremap <C-t>     <Esc>:tabnew<CR>
 
 " Enable filetype plugins
