@@ -4,9 +4,17 @@ set nocompatible               " be iMproved
 set t_Co=256
 filetype off                   " required!
 
-set rtp+=~/.vim/bundle/Vundle.vim
-"call vundle#begin()
-call vundle#rc()
+if has('nvim')
+    let s:editor_root=expand("~/.nvim")
+else
+    let s:editor_root=expand("~/.vim")
+endif
+"set rtp+=~/.vim/bundle/Vundle.vim
+let &rtp = &rtp . ',' . s:editor_root . '/bundle/Vundle.vim'
+call vundle#begin()
+"call vundle#rc()
+call vundle#rc(s:editor_root . '/bundle')
+
 
 " let Vundle manage Vundle
 " required!
@@ -15,13 +23,15 @@ Plugin 'gmarik/Vundle.vim'
 " original repos on github
 "Plugin 'powerline/powerline', {'rtp': '/usr/lib/python2.7/site-packages/powerline/bindings/vim/'}
 "Plugin 'techlivezheng/vim-plugin-minibufexpl'
+Plugin 'zhaocai/GoldenView.Vim'
 Plugin 'henrik/vim-qargs'
-Plugin 'Shougo/vimproc.vim'
+Plugin 'haya14busa/vim-stacktrace'
 Plugin 'scrooloose/syntastic'
 Plugin 'bling/vim-airline'
 Plugin 'tpope/vim-dispatch'
 Plugin 'tpope/vim-fugitive'
-Plugin 'vim-scripts/vim-nose'
+Plugin 'goerz/ipynb_notedown.vim'
+"Plugin 'vim-scripts/vim-nose'
 Plugin 'Raimondi/delimitMate'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'scrooloose/nerdtree'
@@ -34,23 +44,43 @@ Plugin 'davidhalter/jedi-vim'
 Plugin 'tell-k/vim-autopep8'
 Plugin 'ervandew/supertab'
 Plugin 'morhetz/gruvbox'
+Plugin 'elzr/vim-json'
+Plugin 'motus/pig.vim'
+Plugin 'kien/rainbow_parentheses.vim'
+Plugin 'edkolev/tmuxline.vim'
+
+Plugin 'majutsushi/tagbar'
+
+Plugin 'jceb/vim-orgmode'
+Plugin 'vim-scripts/utl.vim'
+Plugin 'tpope/vim-speeddating'
+" Java and Scala
+" Ensime
+"Plugin 'ensime/ensime-vim'
+"Plugin 'derekwyatt/vim-scala'
+
+
 
 " colorschemes
 Plugin 'flazz/vim-colorschemes'
 Plugin 'ColorSchemeMenuMaker'
 Plugin 'desert-warm-256'
+Plugin 'Shougo/vimproc.vim'
 Plugin 'Shougo/neomru.vim'
-Plugin 'Shougo/unite.vim'
+"Plugin 'Shougo/unite.vim'
+Plugin 'Shougo/denite.nvim'
 "Plugin 'ctrlp.vim'
-Plugin 'taglist.vim'
+"Plugin 'taglist.vim'
 Plugin 'spacehi.vim'
 " vim-scripts repos
 " non github repos
 " git repos on your local machine (ie. when working on your own plugin)
 "Bundle 'file:///Users/gmarik/path/to/plugin'
 " ...
-"call vundle#end()            " required
+call vundle#end()            " required
 
+"Taglist
+let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
 
 filetype plugin indent on     " required!
 "
@@ -66,9 +96,9 @@ filetype plugin indent on     " required!
 " tab navigation like firefox
 nnoremap Tk :bprevious<CR>
 nnoremap Tj   :bnext<CR>
-map <Leader>mbe :MBEOpen<cr>
-map <Leader>mbc :MBEClose<cr>
-map <Leader>mbt :MBEToggle<cr>
+"map <Leader>mbe :MBEOpen<cr>
+"map <Leader>mbc :MBEClose<cr>
+"map <Leader>mbt :MBEToggle<cr>
 nnoremap <C-t>     :tabnew<CR>:NERDTree<CR>
 nnoremap tk <Esc>:tabprevious<CR>
 nnoremap tj   <Esc>:tabnext<CR>
@@ -85,10 +115,12 @@ set autoread
 " like <leader>w saves the current file
 let mapleader = ','
 let g:mapleader = ','
+let g:maplocalleader = "."
 
 " Fast saving
 nmap <leader>w :w<cr>
 nmap <leader>e :bwipeout<cr>
+nmap <leader>x :bw<cr>
 
 syntax enable
 "set background=dark
@@ -161,10 +193,9 @@ endif
 
 "Jedi-vim pop up on .
 let g:jedi#popup_on_dot = 0
+"let g:jedi#use_tabs_not_buffers = 1
 set completeopt=longest,menuone
 
-nmap <leader>t :TlistToggle<cr>
-let Tlist_Show_One_File = 1
 
 autocmd FileType python map <buffer> <leader>z :call Autopep8()<CR>
 set background=dark
@@ -172,7 +203,6 @@ syntax on
 "colorscheme molokai
 colorscheme gruvbox
 "source $HOME/softwares/Python-2.7.8/Misc/Vim/vimrc
-let Tlist_WinWidth = 50
 
 "let g:syntastic_always_populate_loc_list = 1
 "let g:syntastic_auto_loc_list = 0
@@ -221,9 +251,9 @@ let g:miniBufExplCycleArround = 1
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#syntastic#enabled = 1
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
 
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 0
@@ -232,124 +262,63 @@ let g:syntastic_check_on_wq = 1
 let g:syntastic_python_checkers = ['pyflakes']
 let g:spacehi_spacecolor="ctermbg=blue"
 let g:spacehi_tabcolor="ctermbg=red"
-"autocmd syntax * if modifiable && ft!='unite' | SpaceHi | endif
 autocmd FileType python SpaceHi
-"autocmd BufWinEnter * if &modifiable && &ft!='unite' | SpaceHi | endif
-"autocmd InsertEnter * if &modifiable && &ft!='unite' | SpaceHi | endif
-"autocmd InsertLeave * if &modifiable && &ft!='unite' | SpaceHi | endif
-"autocmd BufWinLeave * if &modifiable && &ft!='unite' | NoSpaceHi | endif
 
 
-" unite
-let s:cache_dir = '~/.vim/.cache'
-
-"function! s:unite_settings()
-    "nmap <buffer> Q <plug>(unite_exit)
-    "nmap <buffer> <esc> <plug>(unite_exit)
-    "imap <buffer> <esc> <plug>(unite_exit)
-"endfunction
-function! s:get_cache_dir(suffix)
-      return resolve(expand(s:cache_dir . '/' . a:suffix))
-endfunction
-"call unite#filters#matcher_default#use(['matcher_fuzzy'])
-"call unite#filters#sorter_default#use(['sorter_rank'])
-"call unite#custom#profile('default', 'context', {
-      "\ 'start_insert': 1
-      "\ })
-
-let g:unite_data_directory=s:get_cache_dir('unite')
-let g:unite_source_history_yank_enable=1
-let g:unite_source_rec_max_cache_files=500
-let g:unite_update_time = 200
-
-
-let g:unite_source_grep_command='ag'
-let g:unite_source_grep_default_opts='--nocolor --nogroup -S -C4'
-let g:unite_source_grep_recursive_opt=''
-"autocmd FileType unite call s:unite_settings()
-
-nmap <space> [unite]
-nnoremap [unite] <nop>
-call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
-      \ 'ignore_pattern', join([
-      \ '\.git/',
-      \ 'bin/',
-      \ 'git5/.*/review/',
-      \ 'google/obj/',
-      \ 'affine/tmp/',
-      \ '.sass-cache',
-      \ 'node_modules/',
-      \ 'bower_components/',
-      \ 'dist/',
-      \ '.git5_specs/',
-      \ '.pyc',
-      \ ], '\|'))
-
-nnoremap <silent> [unite]<space> :<C-u>Unite -toggle -auto-resize -buffer-name=mixed file_rec/async:! buffer file_mru bookmark<cr><c-u>
-nnoremap <silent> [unite]f :<C-u>Unite -toggle -auto-resize -buffer-name=files file_rec/async:!<cr><c-u>
-nnoremap <silent> [unite]e :<C-u>Unite -buffer-name=recent file_mru<cr>
-nnoremap <silent> [unite]y :<C-u>Unite -buffer-name=yanks history/yank<cr>
-nnoremap <silent> [unite]l :<C-u>Unite -auto-resize -buffer-name=line line<cr>
-nnoremap <silent> [unite]b :<C-u>Unite -auto-resize -buffer-name=buffers buffer file_mru<cr>
-nnoremap <silent> [unite]/ :<C-u>Unite -no-quit -buffer-name=search grep:.<cr>
-nnoremap <silent> [unite]m :<C-u>Unite -auto-resize -buffer-name=mappings mapping<cr>
-nnoremap <silent> [unite]s :<C-u>Unite -quick-match buffer<cr>
-"let g:unite_split_rule = 'botright'
-call unite#custom#profile('default', 'context', {
-    \   'start_insert': 1,
-    \   'winheight': 10,
-    \ })
-
-autocmd FileType unite call s:unite_my_settings()
-function! s:unite_my_settings()"{{{
-  " Overwrite settings.
-
-  imap <buffer> jj      <Plug>(unite_insert_leave)
-  "imap <buffer> <C-w>     <Plug>(unite_delete_backward_path)
-
-  imap <buffer><expr> j unite#smart_map('j', '')
-  imap <buffer> <TAB>   <Plug>(unite_select_next_line)
-  imap <buffer> <C-w>     <Plug>(unite_delete_backward_path)
-  imap <buffer> '     <Plug>(unite_quick_match_default_action)
-  nmap <buffer> '     <Plug>(unite_quick_match_default_action)
-  imap <buffer><expr> x
-          \ unite#smart_map('x', "\<Plug>(unite_quick_match_choose_action)")
-  nmap <buffer> x     <Plug>(unite_quick_match_choose_action)
-  nmap <buffer> <C-z>     <Plug>(unite_toggle_transpose_window)
-  imap <buffer> <C-z>     <Plug>(unite_toggle_transpose_window)
-  imap <buffer> <C-y>     <Plug>(unite_narrowing_path)
-  nmap <buffer> <C-y>     <Plug>(unite_narrowing_path)
-  nmap <buffer> <C-j>     <Plug>(unite_toggle_auto_preview)
-  nmap <buffer> <C-r>     <Plug>(unite_narrowing_input_history)
-  imap <buffer> <C-r>     <Plug>(unite_narrowing_input_history)
-  inoremap <silent><buffer><expr> <C-s> unite#do_action('split')
-  nnoremap <silent><buffer><expr> <C-s> unite#do_action('split')
-  inoremap <silent><buffer><expr> <C-v> unite#do_action('vsplit')
-  nnoremap <silent><buffer><expr> <C-v> unite#do_action('vsplit')
-  nnoremap <silent><buffer><expr> l
-          \ unite#smart_map('l', unite#do_action('default'))
-
-  let unite = unite#get_current_unite()
-  if unite.profile_name ==# 'search'
-    nnoremap <silent><buffer><expr> r     unite#do_action('replace')
-  else
-    nnoremap <silent><buffer><expr> r     unite#do_action('rename')
-  endif
-
-  nnoremap <silent><buffer><expr> cd     unite#do_action('lcd')
-  nnoremap <buffer><expr> S      unite#mappings#set_current_filters(
-          \ empty(unite#mappings#get_current_filters()) ?
-          \ ['sorter_reverse'] : [])
-
-  " Runs "split" action by <C-s>.
-  imap <silent><buffer><expr> <C-s>     unite#do_action('split')
-endfunction"}}}
-
-" For ack.
-if executable('ack-grep')
-   let g:unite_source_grep_command = 'ack-grep'
-   let g:unite_source_grep_default_opts = '-i --no-heading --no-color -k -H'
-   let g:unite_source_grep_recursive_opt = ''
-endif
 
 set hlsearch
+autocmd FileType json autocmd BufWritePre <buffer> %!python -m json.tool
+set clipboard=unnamed
+
+" Rainbow paran stuff
+au VimEnter * RainbowParenthesesToggle
+au Syntax * RainbowParenthesesLoadRound
+au Syntax * RainbowParenthesesLoadSquare
+au Syntax * RainbowParenthesesLoadBraces
+
+filetype plugin indent on
+" show existing tab with 4 spaces width
+set tabstop=4
+" when indenting with '>', use 4 spaces width
+set shiftwidth=4
+" On pressing tab, insert 4 spaces
+set expandtab
+
+" Denite
+call denite#custom#var('file_rec', 'command',
+    \ ['ag', '--follow', '--nocolor', '--nogroup', '-g', ''])
+call denite#custom#filter('matcher_ignore_globs', 'ignore_globs',
+      \ [ '.git/', '.ropeproject/', '__pycache__/',
+      \   'venv/', 'images/', '*.min.*', 'img/', 'fonts/'])
+" Change mappings.
+call denite#custom#map('insert', '<C-j>', '<denite:move_to_next_line>', 'noremap')
+call denite#custom#map('insert', '<C-n>', '<denite:move_to_next_line>', 'noremap')
+call denite#custom#map('insert', '<C-k>', '<denite:move_to_previous_line>', 'noremap')
+call denite#custom#map('insert', '<C-p>', '<denite:move_to_previous_line>', 'noremap')
+call denite#custom#map('normal', 'v', '<denite:do_action:vsplit>', 'noremap')
+call denite#custom#map('normal', 's', '<denite:do_action:split>', 'noremap')
+
+augroup myvimrc
+    au!
+    au BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
+augroup END
+
+nmap <silent> <C-G>  <Plug>GoldenViewSplit
+
+"Denite
+nmap <space> [unite]
+nnoremap [unite] <nop>
+nnoremap <silent> [unite]<space> :<C-u>Denite file_rec buffer<cr><c-u>
+nnoremap <silent> [unite]b :<C-u>Denite buffer<cr><c-u>
+"t		<denite:do_action:tabopen>
+"nnoremap <silent> [unite]f :<C-u>Denite -toggle -auto-resize -buffer-name=files file_rec/async:!<cr><c-u>
+"nnoremap <silent> [unite]e :<C-u>Denite -buffer-name=recent file_mru<cr>
+"nnoremap <silent> [unite]y :<C-u>Denite -buffer-name=yanks history/yank<cr>
+"nnoremap <silent> [unite]l :<C-u>Denite -auto-resize -buffer-name=line line<cr>
+"nnoremap <silent> [unite]b :<C-u>Denite -auto-resize -buffer-name=buffers buffer file_mru<cr>
+"nnoremap <silent> [unite]/ :<C-u>Denite -no-quit -buffer-name=search grep:.<cr>
+"nnoremap <silent> [unite]m :<C-u>Denite -auto-resize -buffer-name=mappings mapping<cr>
+"nnoremap <silent> [unite]s :<C-u>Denite -quick-match buffer<cr>
+
+"Tagbar
+nmap <localleader>t :TagbarToggle<CR>
