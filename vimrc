@@ -9,7 +9,7 @@ if has('nvim')
 else
     let s:editor_root=expand("~/.vim")
 endif
-"set rtp+=~/.vim/bundle/Vundle.vim
+set rtp+=~/.vim/bundle/Vundle.vim
 let &rtp = &rtp . ',' . s:editor_root . '/bundle/Vundle.vim'
 call vundle#begin()
 "call vundle#rc()
@@ -23,6 +23,7 @@ Plugin 'gmarik/Vundle.vim'
 " original repos on github
 "Plugin 'powerline/powerline', {'rtp': '/usr/lib/python2.7/site-packages/powerline/bindings/vim/'}
 "Plugin 'techlivezheng/vim-plugin-minibufexpl'
+Plugin 'Chiel92/vim-autoformat'
 Plugin 'zhaocai/GoldenView.Vim'
 Plugin 'henrik/vim-qargs'
 Plugin 'haya14busa/vim-stacktrace'
@@ -35,19 +36,18 @@ Plugin 'goerz/ipynb_notedown.vim'
 Plugin 'Raimondi/delimitMate'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'scrooloose/nerdtree'
-Plugin 'altercation/vim-colors-solarized'
 "Plugin 'wting/gitsessions.vim'
 Plugin 'xolox/vim-misc'
 Plugin 'christoomey/vim-tmux-navigator'
-Plugin 'rking/ag.vim'
+Plugin 'numkil/ag.nvim'
 Plugin 'davidhalter/jedi-vim'
-Plugin 'tell-k/vim-autopep8'
+"Plugin 'tell-k/vim-autopep8'
 Plugin 'ervandew/supertab'
 Plugin 'morhetz/gruvbox'
 Plugin 'elzr/vim-json'
 Plugin 'motus/pig.vim'
 Plugin 'kien/rainbow_parentheses.vim'
-Plugin 'edkolev/tmuxline.vim'
+"Plugin 'edkolev/tmuxline.vim'
 
 Plugin 'majutsushi/tagbar'
 
@@ -57,11 +57,13 @@ Plugin 'tpope/vim-speeddating'
 " Java and Scala
 " Ensime
 "Plugin 'ensime/ensime-vim'
-"Plugin 'derekwyatt/vim-scala'
+Plugin 'derekwyatt/vim-scala'
 
 
 
 " colorschemes
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'nielsmadan/harlequin'
 Plugin 'flazz/vim-colorschemes'
 Plugin 'ColorSchemeMenuMaker'
 Plugin 'desert-warm-256'
@@ -122,8 +124,6 @@ nmap <leader>w :w<cr>
 nmap <leader>e :bwipeout<cr>
 nmap <leader>x :bw<cr>
 
-syntax enable
-"set background=dark
 
 map <leader>f  "zyw:exe "Ag ".@z.""<CR>
 
@@ -139,22 +139,21 @@ set shiftwidth=4
 inoremap {      {}<Left>
 inoremap {<CR>  {<CR>}<Esc>O
 
-set colorcolumn=80
 nmap <leader>ne :NERDTreeToggle<cr>
 nmap <leader>k :NERDTreeFind<cr>
 "autocmd BufEnter * lcd %:p:h
 
-func GitGrep(...)
-  let save = &grepprg
-  set grepprg=git\ grep\ -n\ $*
-  let s = 'grep'
-  for i in a:000
-    let s = s . ' ' . i
-  endfor
-  exe s
-  let &grepprg = save
-endfun
-command -nargs=? G call GitGrep(<f-args>)
+"func GitGrep(...)
+  "let save = &grepprg
+  "set grepprg=git\ grep\ -n\ $*
+  "let s = 'grep'
+  "for i in a:000
+    "let s = s . ' ' . i
+  "endfor
+  "exe s
+  "let &grepprg = save
+"endfun
+"command -nargs=? G call GitGrep(<f-args>)
 set backspace=indent,eol,start
 
 set smartcase
@@ -163,6 +162,9 @@ set softtabstop=4
 set grepprg=ack
 nnoremap <C-g> :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 autocmd FileType ruby set tabstop=2|set shiftwidth=2|set expandtab
+autocmd FileType yaml set tabstop=2|set shiftwidth=2|set expandtab
+
+
 set switchbuf+=usetab,newtab
 set expandtab
 " The Silver Searcher
@@ -197,11 +199,17 @@ let g:jedi#popup_on_dot = 0
 set completeopt=longest,menuone
 
 
-autocmd FileType python map <buffer> <leader>z :call Autopep8()<CR>
-set background=dark
+"autocmd FileType python map <buffer> <leader>z :call Autopep8()<CR>
+autocmd FileType python map <buffer> <leader>z :Autoformat<CR>
 syntax on
+colorscheme harlequin
+set colorcolumn=80
+set background=dark
+hi Visual term=reverse cterm=reverse guibg=Grey
+highlight colorcolumn ctermbg=6
+"colorscheme solarized
 "colorscheme molokai
-colorscheme gruvbox
+"colorscheme gruvbox
 "source $HOME/softwares/Python-2.7.8/Misc/Vim/vimrc
 
 "let g:syntastic_always_populate_loc_list = 1
@@ -209,7 +217,7 @@ colorscheme gruvbox
 "let g:syntastic_check_on_open = 0
 "let g:syntastic_check_on_wq = 1
 let g:syntastic_python_pylint_quiet_messages = {"regex": ['\m\[C01\d\d,.*\]', '\m\[C01\d\d\]', '\m\[R09\d\d,.*\]', '\m\[W07\d\d,.*\]']}
-
+let g:syntastic_python_flake8_args='--ignore=E501'
 
 " copy to buffer
 vmap <C-c> :w! ~/.vimbuffer<CR>
@@ -259,7 +267,7 @@ let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 0
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 1
-let g:syntastic_python_checkers = ['pyflakes']
+let g:syntastic_python_checkers = ['flake8', 'pylint3']
 let g:spacehi_spacecolor="ctermbg=blue"
 let g:spacehi_tabcolor="ctermbg=red"
 autocmd FileType python SpaceHi
@@ -322,3 +330,17 @@ nnoremap <silent> [unite]b :<C-u>Denite buffer<cr><c-u>
 
 "Tagbar
 nmap <localleader>t :TagbarToggle<CR>
+
+"Copy from clipboard (Linux)
+noremap <Leader>y "*y
+noremap <Leader>p "*p
+noremap <Leader>Y "+y
+noremap <Leader>P "+p
+
+" Linux copy to clipboard
+vnoremap <C-c> "+y"
+
+" Scala
+"autocmd BufWritePost *.scala silent :EnTypeCheck
+"nnoremap <localleader>t :EnType<CR>
+"au FileType scala nnoremap <localleader>df :EnDeclaration<CR>
